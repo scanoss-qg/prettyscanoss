@@ -1,0 +1,23 @@
+	    items := GetItemsToProcess
+		numJobs := len(items)
+		
+		jobs := make(chan Items)
+		results := make(chan string, numJobs)
+
+		for w := 1; w <= 10; w++ {
+			go worker(w, jobs, results)
+		}
+
+		for job := range ghItems {
+			jobs <- items[job]
+		}
+
+		close(jobs)
+
+		writesTotal := 0
+		for a := 1; a <= numJobs; a++ {
+			res := <-results
+			writes, _ := f.WriteString(res)
+			writesTotal += writes
+
+		}
